@@ -1,0 +1,2 @@
+docker
+rally # it should be >= 0.10.0, but it is not released yet
