@@ -24,6 +24,8 @@ def configure(name, order, hidden=False):
 
 @context.configure("users", namespace="docker", order=1)
 class UsersContext(context.Context):
+    """A dummy context for Docker."""
+
     CONFIG_SCHEMA = {"type": "object", "additionalProperties": False}
 
     def setup(self):

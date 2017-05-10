@@ -20,6 +20,7 @@ from rally_docker.scenarios import base
 
 @base.configure("Docker.run_container", context={"images": {"existing": True}})
 class RunContainer(base.BaseDockerScenario):
+
     @staticmethod
     def _parse_image_name(name):
         if ":" not in name:
@@ -42,6 +43,7 @@ class RunContainer(base.BaseDockerScenario):
                                   "data": output})
 
     def run(self, image_name, command):
+        """Run a docker container from image and execute a command in it."""
         image_name = self._parse_image_name(image_name)
         if image_name not in self.context["docker"]["images"]:
             self._pull_image(image_name)
