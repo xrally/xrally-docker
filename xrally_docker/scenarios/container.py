@@ -15,7 +15,7 @@
 from rally.task import atomic
 import six
 
-from rally_docker.scenarios import base
+from xrally_docker.scenarios import base
 
 
 @base.configure("Docker.run_container", context={"images": {"existing": True}})

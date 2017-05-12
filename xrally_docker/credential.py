@@ -17,7 +17,7 @@ import os
 from rally import consts
 from rally.deployment import credential
 
-from rally_docker import client
+from xrally_docker import client
 
 
 @credential.configure("docker")

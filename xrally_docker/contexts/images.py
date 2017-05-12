@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from rally_docker.contexts import base
+from xrally_docker.contexts import base
 
 
 @base.configure("images", order=100, hidden=True)

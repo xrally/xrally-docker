@@ -14,7 +14,7 @@
 
 from rally.task import context
 
-from rally_docker import client
+from xrally_docker import client
 
 
 def configure(name, order, hidden=False):
