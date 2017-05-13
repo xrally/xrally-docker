@@ -1,0 +1,6 @@
+{
+    "type": "ExistingCloud",
+    "creds": {
+        "docker": {}
+    }
+}
