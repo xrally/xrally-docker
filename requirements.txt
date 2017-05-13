@@ -3,4 +3,4 @@
 # process, which may cause wedges in the gate later.
 
 docker
-rally # it should be >= 0.10.0, but it is not released yet
+-e git+git//github.com/openstack/rally.git#egg=rally

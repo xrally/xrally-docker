@@ -1,4 +1,3 @@
-# Copyright 2014: Mirantis Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -20,16 +19,16 @@ import os
 import re
 import traceback
 
-import yaml
-
-import rally
 from rally import api
 from rally.task import context
 from rally.task import engine
 from rally.task import scenario
-from tests.unit import test
+import yaml
 
-RALLY_PATH = os.path.join(os.path.dirname(rally.__file__), os.pardir)
+from tests.unit import test
+import xrally_docker
+
+RALLY_PATH = os.path.join(os.path.dirname(xrally_docker.__file__), os.pardir)
 
 
 class TaskSampleTestCase(test.TestCase):
@@ -39,6 +38,8 @@ class TaskSampleTestCase(test.TestCase):
         super(TaskSampleTestCase, self).setUp()
         if os.environ.get("TOX_ENV_NAME") == "cover":
             self.skipTest("There is no need to check samples in coverage job.")
+        with mock.patch("rally.api.API.check_db_revision"):
+            self.rapi = api.API()
 
     def test_schema_is_valid(self):
         scenarios = set()
@@ -54,8 +55,8 @@ class TaskSampleTestCase(test.TestCase):
 
                 with open(full_path) as task_file:
                     try:
-                        task_config = yaml.safe_load(api._Task.render_template
-                                                     (task_file.read()))
+                        task_config = yaml.safe_load(
+                            self.rapi.task.render_template(task_file.read()))
                         eng = engine.TaskEngine(task_config,
                                                 mock.MagicMock(), mock.Mock())
                         eng.validate(only_syntax=True)
@@ -81,7 +82,8 @@ class TaskSampleTestCase(test.TestCase):
                 full_path = os.path.join(dirname, filename)
                 with open(full_path) as task_file:
                     try:
-                        json.loads(api._Task.render_template(task_file.read()))
+                        json.loads(self.rapi.task.render_template(
+                            task_file.read()))
                     except Exception:
                         print(traceback.format_exc())
                         self.fail("Invalid JSON file: %s" % full_path)
@@ -121,11 +123,11 @@ class TaskSampleTestCase(test.TestCase):
 
                 if os.path.exists(yaml_path) and os.path.exists(json_path):
                     with open(json_path) as json_file:
-                        json_config = yaml.safe_load(api._Task.render_template
-                                                     (json_file.read()))
+                        json_config = yaml.safe_load(
+                            self.rapi.task.render_template(json_file.read()))
                     with open(yaml_path) as yaml_file:
-                        yaml_config = yaml.safe_load(api._Task.render_template
-                                                     (yaml_file.read()))
+                        yaml_config = yaml.safe_load(
+                            self.rapi.task.render_template(yaml_file.read()))
                     self.assertEqual(json_config, yaml_config,
                                      "Sample task configs are not equal:"
                                      "\n%s\n%s" % (yaml_path, json_path))
@@ -151,7 +153,7 @@ class TaskSampleTestCase(test.TestCase):
         for p in all_plugins:
             # except contexts which belongs to tests module
             if not inspect.getfile(p).startswith(
-               os.path.dirname(rally.__file__)):
+               os.path.dirname(xrally_docker.__file__)):
                 continue
             file_name = p.get_name().replace("_", "-")
             file_path = os.path.join(context_samples_path, file_name)
