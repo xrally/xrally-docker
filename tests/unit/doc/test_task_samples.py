@@ -66,12 +66,11 @@ class TaskSampleTestCase(test.TestCase):
                     else:
                         scenarios.update(task_config.keys())
 
-        missing = set(s.get_name() for s in scenario.Scenario.get_all())
+        missing = set(s.get_name()
+                      for s in scenario.Scenario.get_all()
+                      if s.__module__.startswith("xrally_docker"))
         missing -= scenarios
-        # check missing scenario is not from plugin
-        missing = [s for s in list(missing)
-                   if scenario.Scenario.get(s).__module__.startswith("rally")]
-        self.assertEqual(missing, [],
+        self.assertEqual(list(missing), [],
                          "These scenarios don't have samples: %s" % missing)
 
     def test_json_correct_syntax(self):
@@ -151,13 +150,16 @@ class TaskSampleTestCase(test.TestCase):
         all_plugins = context.Context.get_all()
         context_samples_path = os.path.join(self.samples_path, "contexts")
         for p in all_plugins:
-            # except contexts which belongs to tests module
             if not inspect.getfile(p).startswith(
                os.path.dirname(xrally_docker.__file__)):
+                # except contexts which belongs to tests module
+                continue
+            elif p.get_name() == "users":
+                # users is a dummy context for doing nothing
                 continue
             file_name = p.get_name().replace("_", "-")
             file_path = os.path.join(context_samples_path, file_name)
             if not os.path.exists("%s.json" % file_path):
                 self.fail(("There is no json sample file of %s,"
-                           "plugin location: %s" %
-                           (p.get_name(), p.__module__)))
+                           "plugin location: %s.json" %
+                           (p.get_name(), file_path)))

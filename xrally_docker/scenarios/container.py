@@ -43,7 +43,11 @@ class RunContainer(base.BaseDockerScenario):
                                   "data": output})
 
     def run(self, image_name, command):
-        """Run a docker container from image and execute a command in it."""
+        """Run a docker container from image and execute a command in it.
+
+        :param image_name: The name of image to start
+        :param command: The command to launch in container
+        """
         image_name = self._parse_image_name(image_name)
         if image_name not in self.context["docker"]["images"]:
             self._pull_image(image_name)

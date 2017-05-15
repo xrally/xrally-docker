@@ -1,0 +1,10 @@
+---
+  Docker.run_container:
+  -
+    description: An example of 'images' context configured to pull several images
+    args:
+      command: bar
+      image_name: foo
+    context:
+      images:
+        names: [ubuntu, fedora]

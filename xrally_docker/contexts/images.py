@@ -15,7 +15,7 @@
 from xrally_docker.contexts import base
 
 
-@base.configure("images", order=100, hidden=True)
+@base.configure("images", order=100)
 class ImagesContext(base.BaseDockerContext):
     """Pull new images or load existing ones."""
 
