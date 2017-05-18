@@ -1,6 +1,6 @@
-==================================
-Docker plugins for Rally Framework
-==================================
+===================================
+Docker plugins for xRally Framework
+===================================
 
 
 What is it?!
