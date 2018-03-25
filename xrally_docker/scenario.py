@@ -14,7 +14,7 @@
 
 from rally.task import scenario
 
-from xrally_docker import client
+from xrally_docker import service
 
 
 def configure(name=None, context=None):
@@ -25,5 +25,7 @@ class BaseDockerScenario(scenario.Scenario):
     def __init__(self, context=None):
         super(BaseDockerScenario, self).__init__(context)
         if "env" in self.context:
-            self.client = client.DockerClient(
-                self.context["env"]["platforms"]["docker"])
+            self.client = service.Docker(
+                self.context["env"]["platforms"]["docker"],
+                atomic_inst=self.atomic_actions(),
+                name_generator=self.generate_random_name)

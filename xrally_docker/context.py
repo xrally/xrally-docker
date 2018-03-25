@@ -14,7 +14,7 @@
 
 from rally.task import context
 
-from xrally_docker import client
+from xrally_docker import service
 
 
 def configure(name, order, hidden=False):
@@ -28,5 +28,8 @@ class BaseDockerContext(context.Context):
     def __init__(self, ctx):
         super(BaseDockerContext, self).__init__(ctx)
         self.context.setdefault("docker", {})
-        self.client = client.DockerClient(
-            self.context["env"]["platforms"]["docker"])
+        self.client = service.Docker(
+            self.context["env"]["platforms"]["docker"],
+            atomic_inst=self.atomic_actions(),
+            name_generator=self.generate_random_name
+        )

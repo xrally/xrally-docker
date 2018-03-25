@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from rally.task import atomic
 import six
 
 from xrally_docker import scenario
@@ -22,21 +21,6 @@ from xrally_docker import scenario
     "Docker.run_container",
     context={"images@docker": {"existing": True}})
 class RunContainer(scenario.BaseDockerScenario):
-
-    @atomic.action_timer("pull_image")
-    def _pull_image(self, image_name):
-        return self.client().images.pull(image_name)
-
-    @atomic.action_timer("run_container")
-    def _run(self, image_name, container_name, command):
-        output = self.client().containers.run(image=image_name,
-                                              name=container_name,
-                                              command=command)
-
-        output = six.text_type(output).split("\n")
-        self.add_output(complete={"title": "Script Output",
-                                  "chart_plugin": "TextArea",
-                                  "data": output})
 
     def run(self, image_name, command):
         """Run a docker container from image and execute a command in it.
@@ -49,8 +33,12 @@ class RunContainer(scenario.BaseDockerScenario):
         p_match = [i for i in self.context["docker"]["images"]
                    if image_name in i["RepoTags"]]
         if not p_match:
-            self._pull_image(image_name)
+            self.client.pull_image(image_name)
 
-        name = self.generate_random_name()
-        self._run(image_name=image_name, container_name=name,
-                  command=command)
+        output = self.client.run_container(image_name=image_name,
+                                           command=command)
+
+        output = six.text_type(output).split("\n")
+        self.add_output(complete={"title": "Script Output",
+                                  "chart_plugin": "TextArea",
+                                  "data": output})

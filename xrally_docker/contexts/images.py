@@ -40,15 +40,12 @@ class ImagesContext(context.BaseDockerContext):
         self.context["docker"]["images"] = []
 
         for name in self.config["names"]:
-            if ":" not in name:
-                name = "%s:latest" % name
             self.context["docker"]["images"].append(
-                self.client().images.pull(name).attrs)
+                self.client.pull_image(name))
 
         if self.config.get("existing", bool(self.config["names"])):
-            images = self.client().images.list()
             self.context["docker"]["images"].extend(
-                [i.attrs for i in images])
+                self.client.list_images())
 
     def cleanup(self):
         # TODO(andreykurilin): remove uploaded images

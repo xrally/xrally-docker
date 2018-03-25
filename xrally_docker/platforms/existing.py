@@ -19,7 +19,7 @@ from rally.common import cfg
 from rally.common import logging
 from rally.env import platform
 
-from xrally_docker import client
+from xrally_docker import service
 
 
 LOG = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class Docker(platform.Platform):
     def check_health(self):
         """Check whatever platform is alive."""
         try:
-            client.DockerClient(self.platform_data).verify_connection()
+            service.Docker(self.platform_data).get_version()
         except Exception:
             return {
                 "available": False,
@@ -94,7 +94,7 @@ class Docker(platform.Platform):
         """Return a version of a Docker."""
         return {
             "info": {
-                "version": client.DockerClient(self.platform_data).version()
+                "version": service.Docker(self.platform_data).get_version()
             }
         }
 

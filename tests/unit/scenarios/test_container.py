@@ -21,24 +21,18 @@ from xrally_docker.scenarios import container
 class RunContainerTestCase(test.TestCase):
 
     def test_run(self):
-        random_name = "RandomName"
         command = "echo 'hi!'"
 
-        gen_name = mock.MagicMock(return_value=random_name)
         dclient = mock.MagicMock()
         dclient.return_value.containers.run.return_value = "some output"
 
         scenario = container.RunContainer({"docker": {"images": []}})
         scenario.client = dclient
-        scenario.generate_random_name = gen_name
 
         scenario.run("foo", command)
 
-        dclient.return_value.images.pull.assert_called_once_with("foo:latest")
-
-        gen_name.assert_called_once_with()
-        dclient.return_value.containers.run.assert_called_once_with(
-            image="foo:latest",
-            name=random_name,
+        dclient.pull_image.assert_called_once_with("foo:latest")
+        dclient.run_container.assert_called_once_with(
+            image_name="foo:latest",
             command=command
         )
