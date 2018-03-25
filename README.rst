@@ -1,26 +1,32 @@
-===================================
-Docker plugins for xRally Framework
-===================================
+=============
+xrally_docker
+=============
 
+xRally plugins for `Docker engine <https://www.docker.com>`_.
 
 What is it?!
 ------------
 
-.. warning:: It is just proof of concept
+Originally, it was created as a quick proof-of-concept to show ability of
+`Rally <https://github.com/openstack/rally>`_ to test platforms other than
+`OpenStack <https://www.openstack.org/>`_. After the first preview,
+it became obvious that it should be developed as a complete package.
 
-This is an example of rally plugins for Docker platform. It includes:
-
-* all required base classes(inner rally stuff);
-* the scenario ``Docker.run_container`` which launches a container and executes
-  the command in it
-* the simple context for polling images or discovering existing ones.
+**xrally_docker** is a pack of xRally plugins for execution different workloads
+at the top of Docker Engine. Such workloads can be used as like for testing
+environments with Docker or testing behaviour of specified docker image.
 
 How to use?!
 ------------
 
-Rally 0.10.0 supports auto-discovering plugins by entry-point. It simplifies a
-lot of things. To install these plugins, you need to install that repository
-just like regular python package and Rally will find it.
+**xrally_docker** package is configured to be auto-discovered by Rally. Since
+rally package is a dependency of **xrally_docker** , so to start using
+**xrally_docker** you need to install just one package:
+
+  .. code-block:: console
+
+    pip install xrally_docker
+
 
 Know issues
 -----------
