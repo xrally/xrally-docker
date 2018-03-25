@@ -14,15 +14,16 @@
 
 from rally.task import scenario
 
+from xrally_docker import client
+
 
 def configure(name=None, context=None):
-    return scenario.configure(name=name, namespace="docker", context=context)
+    return scenario.configure(name=name, platform="docker", context=context)
 
 
 class BaseDockerScenario(scenario.Scenario):
     def __init__(self, context=None):
         super(BaseDockerScenario, self).__init__(context)
-        if "admin" in self.context:
-            self.client = self.context["admin"]["credential"].clients()
-        else:
-            self.client = None
+        if "env" in self.context:
+            self.client = client.DockerClient(
+                self.context["env"]["platforms"]["docker"])

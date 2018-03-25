@@ -18,22 +18,8 @@ from xrally_docker import client
 
 
 def configure(name, order, hidden=False):
-    return context.configure(name, namespace="docker", order=order,
+    return context.configure(name, platform="docker", order=order,
                              hidden=hidden)
-
-
-@context.configure("users", namespace="docker", order=1)
-class UsersContext(context.Context):
-    """A dummy context for Docker."""
-
-    CONFIG_SCHEMA = {"type": "object", "additionalProperties": False}
-
-    def setup(self):
-        self.context["users"] = []
-        self.context["docker"] = {}
-
-    def cleanup(self):
-        pass
 
 
 class BaseDockerContext(context.Context):
@@ -41,4 +27,6 @@ class BaseDockerContext(context.Context):
 
     def __init__(self, ctx):
         super(BaseDockerContext, self).__init__(ctx)
-        self.client = client.DockerClient(self.context["admin"]["credential"])
+        self.context.setdefault("docker", {})
+        self.client = client.DockerClient(
+            self.context["env"]["platforms"]["docker"])

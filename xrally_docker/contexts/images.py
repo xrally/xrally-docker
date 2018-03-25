@@ -12,11 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from xrally_docker.contexts import base
+from xrally_docker import context
 
 
-@base.configure("images", order=100)
-class ImagesContext(base.BaseDockerContext):
+@context.configure("images", order=100)
+class ImagesContext(context.BaseDockerContext):
     """Pull new images or load existing ones."""
 
     CONFIG_SCHEMA = {
@@ -43,11 +43,12 @@ class ImagesContext(base.BaseDockerContext):
             if ":" not in name:
                 name = "%s:latest" % name
             self.context["docker"]["images"].append(
-                self.client().images.pull(name))
+                self.client().images.pull(name).attrs)
 
         if self.config.get("existing", bool(self.config["names"])):
+            images = self.client().images.list()
             self.context["docker"]["images"].extend(
-                self.client().images.list())
+                [i.attrs for i in images])
 
     def cleanup(self):
         # TODO(andreykurilin): remove uploaded images

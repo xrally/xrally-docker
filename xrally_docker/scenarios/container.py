@@ -15,17 +15,13 @@
 from rally.task import atomic
 import six
 
-from xrally_docker.scenarios import base
+from xrally_docker import scenario
 
 
-@base.configure("Docker.run_container", context={"images": {"existing": True}})
-class RunContainer(base.BaseDockerScenario):
-
-    @staticmethod
-    def _parse_image_name(name):
-        if ":" not in name:
-            name = "%s:latest" % name
-        return name
+@scenario.configure(
+    "Docker.run_container",
+    context={"images@docker": {"existing": True}})
+class RunContainer(scenario.BaseDockerScenario):
 
     @atomic.action_timer("pull_image")
     def _pull_image(self, image_name):
@@ -48,8 +44,11 @@ class RunContainer(base.BaseDockerScenario):
         :param image_name: The name of image to start
         :param command: The command to launch in container
         """
-        image_name = self._parse_image_name(image_name)
-        if image_name not in self.context["docker"]["images"]:
+        if ":" not in image_name:
+            image_name = "%s:latest" % image_name
+        p_match = [i for i in self.context["docker"]["images"]
+                   if image_name in i["RepoTags"]]
+        if not p_match:
             self._pull_image(image_name)
 
         name = self.generate_random_name()

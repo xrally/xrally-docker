@@ -2,5 +2,6 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
--e git+git://github.com/openstack/rally.git@5140b8092ad220f53eed525ba95e8600bb58505f#egg=rally
-docker
+rally>=0.11.0
+
+docker>=3.0.0
