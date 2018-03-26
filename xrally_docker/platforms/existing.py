@@ -34,15 +34,34 @@ class Docker(platform.Platform):
     CONFIG_SCHEMA = {
         "type": "object",
         "properties": {
-            "host": {"type": "string",
-                     "description": "The URL to the Docker host"},
+            "host": {
+                "type": "string",
+                "description": "The URL to the Docker host"},
+            "timeout": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Default timeout for API calls, in seconds."},
             "tls_verify": {
                 "type": "boolean",
                 "description": "Verify the host against a CA certificate."},
-            "cert_path": {"type": "string",
-                          "description": "A path to a directory containing TLS"
-                                         " certificates to use when connecting"
-                                         " to the Docker host."}
+            "cert_path": {
+                "type": "string",
+                "description":
+                    "A path to a directory containing TLS certificates to use "
+                    "when connecting to the Docker host."},
+            "version": {
+                "type": "string",
+                "description":
+                    "The version of the API to use. Defaults to ``auto`` which"
+                    "means automatically detection of the server's version."
+            },
+            "ssl_version": {
+                "type": "integer",
+                "description":
+                    "A valid SSL version (see "
+                    "https://docs.python.org/3.5/library/ssl.html"
+                    "#ssl.PROTOCOL_TLSv1)"
+            }
         },
         "additionalProperties": False
     }
@@ -103,5 +122,50 @@ class Docker(platform.Platform):
 
     @classmethod
     def create_spec_from_sys_environ(cls, sys_environ):
-        # TODO(andreykurilin): make it work someday
-        return platform.Platform.create_spec_from_sys_environ(sys_environ)
+        """Create a spec based on system environment.
+
+        The environment variables used are the same as those used by the
+        Docker command-line client. They are:
+
+        .. envvar:: DOCKER_HOST
+
+            The URL to the Docker host.
+
+        .. envvar:: DOCKER_TLS_VERIFY
+
+            Verify the host against a CA certificate.
+
+        .. envvar:: DOCKER_CERT_PATH
+
+            A path to a directory containing TLS certificates to use when
+            connecting to the Docker host.
+
+        This is an adopted version of `docker.utils.kwargs_from_env`.
+        """
+        spec = {}
+        host = sys_environ.get("DOCKER_HOST")
+        if host:
+            spec["host"] = host
+        cert_path = sys_environ.get("DOCKER_CERT_PATH") or None
+        if cert_path:
+            spec["cert_path"] = cert_path
+
+        # empty string for tls verify counts as "false".
+        # Any value or 'unset' counts as true.
+        tls_verify = sys_environ.get("DOCKER_TLS_VERIFY")
+        if tls_verify == "":
+            tls_verify = False
+        else:
+            tls_verify = tls_verify is not None
+        spec["tls_verify"] = tls_verify
+
+        enable_tls = cert_path or spec["tls_verify"]
+
+        if not enable_tls:
+            return {"available": True, "spec": spec}
+
+        if not cert_path:
+            spec["cert_path"] = os.path.join(
+                os.path.expanduser("~"), ".docker")
+
+        return {"available": True, "spec": spec}

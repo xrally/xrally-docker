@@ -22,9 +22,67 @@ class DockerServiceTestCase(test.TestCase):
 
     def setUp(self):
         super(DockerServiceTestCase, self).setUp()
-        self.client = mock.MagicMock()
+        import docker
+
+        p_mock_client = mock.patch.object(docker, "DockerClient")
+        self.client_cls = p_mock_client.start()
+        self.client = self.client_cls.return_value
+
+        self.addCleanup(p_mock_client.stop)
+
         self.docker = service.Docker({})
-        self.docker._client = self.client
+
+    def test___init___without_tls(self):
+        # setUp method called it
+        self.client_cls.reset_mock()
+
+        from docker import tls
+
+        p_mock_tls = mock.patch.object(tls, "TLSConfig")
+        mock_tls = p_mock_tls.start()
+        self.addCleanup(p_mock_tls.stop)
+
+        spec = {}
+
+        service.Docker(spec)
+
+        self.assertFalse(mock_tls.called)
+        self.client_cls.assert_called_once_with(
+            base_url=None,
+            timeout=60,
+            tls=False, version='auto')
+
+    def test___init___with_tls(self):
+        # setUp method called it
+        self.client_cls.reset_mock()
+
+        from docker import tls
+
+        p_mock_tls = mock.patch.object(tls, "TLSConfig")
+        mock_tls = p_mock_tls.start()
+        self.addCleanup(p_mock_tls.stop)
+
+        timeout = 1
+        spec = {
+            "tls_verify": True,
+            "cert_path": "/foo",
+            "host": "localhost",
+            "timeout": timeout}
+
+        service.Docker(spec)
+
+        mock_tls.assert_called_once_with(
+            assert_hostname=False,
+            ca_cert="/foo/ca.pem",
+            client_cert=("/foo/cert.pem", "/foo/key.pem"),
+            ssl_version=None,
+            verify=True
+        )
+        self.client_cls.assert_called_once_with(
+            base_url="localhost",
+            timeout=timeout, tls=mock_tls.return_value,
+            version="auto"
+        )
 
     def test_get_version(self):
         self.client.version.return_value = {"Version": 3}

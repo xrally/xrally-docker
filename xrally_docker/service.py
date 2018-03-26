@@ -12,19 +12,42 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
+
 from rally.task import atomic
 from rally.task import service
 
 
 class Docker(service.Service):
-    def __init__(self, credentials, name_generator=None, atomic_inst=None):
+    def __init__(self, spec, name_generator=None, atomic_inst=None):
         super(Docker, self).__init__(None, name_generator=name_generator,
                                      atomic_inst=atomic_inst)
-        self._credentials = credentials
+        self._spec = spec
+
+        cert_path = self._spec.get("cert_path")
+        tls_verify = self._spec.get("tls_verify", False)
+        enable_tls = cert_path or tls_verify
+        if enable_tls:
+            from docker import tls as docker_tls
+
+            tls = docker_tls.TLSConfig(
+                client_cert=(os.path.join(cert_path, "cert.pem"),
+                             os.path.join(cert_path, "key.pem")),
+                ca_cert=os.path.join(cert_path, "ca.pem"),
+                verify=tls_verify,
+                ssl_version=self._spec.get("ssl_version"),
+                assert_hostname=False)
+        else:
+            tls = False
+
         import docker
 
-        # TODO(andreykurilin): use credentials
-        self._client = docker.DockerClient.from_env()
+        self._client = docker.DockerClient(
+            base_url=self._spec.get("host"),
+            version=self._spec.get("version", "auto"),
+            timeout=self._spec.get(
+                "timeout", docker.constants.DEFAULT_TIMEOUT_SECONDS),
+            tls=tls)
 
     @atomic.action_timer("docker.get_version")
     def get_version(self):
