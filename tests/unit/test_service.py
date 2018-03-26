@@ -84,10 +84,11 @@ class DockerServiceTestCase(test.TestCase):
             version="auto"
         )
 
-    def test_get_version(self):
+    def test_get_info(self):
         self.client.version.return_value = {"Version": 3}
 
-        self.assertEqual(3, self.docker.get_version())
+        self.assertEqual(self.client.version.return_value,
+                         self.docker.get_info())
 
         self.client.version.assert_called_once_with()
 

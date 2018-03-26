@@ -110,12 +110,8 @@ class Docker(platform.Platform):
         return {"available": True}
 
     def info(self):
-        """Return a version of a Docker."""
-        return {
-            "info": {
-                "version": service.Docker(self.platform_data).get_version()
-            }
-        }
+        """Return an info about Docker server."""
+        return {"info": service.Docker(self.platform_data).get_info()}
 
     def _get_validation_context(self):
         return {}

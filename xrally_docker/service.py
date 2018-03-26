@@ -49,10 +49,10 @@ class Docker(service.Service):
                 "timeout", docker.constants.DEFAULT_TIMEOUT_SECONDS),
             tls=tls)
 
-    @atomic.action_timer("docker.get_version")
-    def get_version(self):
-        """Get Docker version."""
-        return self._client.version()["Version"]
+    @atomic.action_timer("docker.version")
+    def get_info(self):
+        """Get info about Docker server."""
+        return self._client.version()
 
     @staticmethod
     def _fix_the_name(name):
