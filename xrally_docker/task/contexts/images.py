@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from xrally_docker import context
+from xrally_docker.task import context
 
 
 @context.configure("images", order=100)

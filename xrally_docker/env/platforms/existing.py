@@ -19,7 +19,7 @@ from rally.common import cfg
 from rally.common import logging
 from rally.env import platform
 
-from xrally_docker import service
+from xrally_docker.common import service
 
 
 LOG = logging.getLogger(__name__)

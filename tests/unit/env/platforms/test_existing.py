@@ -15,7 +15,7 @@
 import os
 
 from tests.unit import test
-from xrally_docker.platforms import existing
+from xrally_docker.env.platforms import existing
 
 
 class DockerPlatformTestCase(test.TestCase):

@@ -15,7 +15,7 @@
 import mock
 
 from tests.unit import test
-from xrally_docker import service
+from xrally_docker.common import service
 
 
 class DockerServiceTestCase(test.TestCase):

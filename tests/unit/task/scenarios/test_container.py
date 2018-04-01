@@ -15,7 +15,7 @@
 import mock
 
 from tests.unit import test
-from xrally_docker.scenarios import container
+from xrally_docker.task.scenarios import container
 
 
 class RunContainerTestCase(test.TestCase):

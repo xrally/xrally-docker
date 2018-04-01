@@ -14,7 +14,7 @@
 
 import six
 
-from xrally_docker import scenario
+from xrally_docker.task import scenario
 
 
 @scenario.configure(
