@@ -14,7 +14,7 @@
 
 from rally.task import context
 
-from xrally_docker.common import service
+from xrally_docker import service
 
 
 def configure(name, order, hidden=False):

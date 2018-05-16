@@ -28,8 +28,8 @@ rally package is a dependency of **xrally_docker** , so to start using
     pip install xrally_docker
 
 
-Know issues
------------
+Known issues
+------------
 
 This package works fine, but you need to install the proper version of Docker
 client which suits your Docker API version.
