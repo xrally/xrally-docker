@@ -99,7 +99,7 @@ class Docker(platform.Platform):
     def check_health(self):
         """Check whatever platform is alive."""
         try:
-            service.Docker(self.platform_data).get_version()
+            service.Docker(self.platform_data).get_info()
         except Exception:
             return {
                 "available": False,
