@@ -1,4 +1,3 @@
-# Copyright 2013: Mirantis Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,16 +12,25 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
-import testtools
+from rally.common import cfg
 
 
-class TestCase(testtools.TestCase):
-    """Test case base class for all unit tests."""
+DOCKER_OPTS = [
+    cfg.IntOpt("resource_deletion_timeout",
+               default=600,
+               deprecated_group="cleanup",
+               help="A timeout in seconds for deleting resources"),
+    cfg.IntOpt("cleanup_threads",
+               default=20,
+               deprecated_group="cleanup",
+               help="Number of cleanup threads to run")
+]
 
-    def setUp(self):
-        super(TestCase, self).setUp()
-        self.addCleanup(mock.patch.stopall)
 
-    def assertSequenceEqual(self, iterable_1, iterable_2, msg=None):
-        self.assertEqual(tuple(iterable_1), tuple(iterable_2), msg)
+def list_opts():
+    """Return a list of configuration options.
+
+    This is entry-point which is configured via setup.cfg
+    """
+
+    return {"docker": DOCKER_OPTS}
