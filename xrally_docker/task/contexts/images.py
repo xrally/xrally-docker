@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from xrally_docker.common.cleanup import manager
 from xrally_docker.task import context
 
 
@@ -43,10 +44,14 @@ class ImagesContext(context.BaseDockerContext):
             self.context["docker"]["images"].append(
                 self.client.pull_image(name))
 
-        if self.config.get("existing", bool(self.config["names"])):
+        if self.config.get("existing", not bool(self.config["names"])):
             self.context["docker"]["images"].extend(
                 self.client.list_images())
 
     def cleanup(self):
-        # TODO(andreykurilin): remove uploaded images
-        pass
+        manager.cleanup(
+            names=["image"],
+            spec=self.context["env"]["platforms"]["docker"],
+            superclass=self.__class__,
+            owner_id=self.get_owner_id()
+        )
