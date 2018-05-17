@@ -30,7 +30,8 @@ class DockerServiceTestCase(test.TestCase):
 
         self.addCleanup(p_mock_client.stop)
 
-        self.docker = service.Docker({})
+        self.name_generator = mock.MagicMock()
+        self.docker = service.Docker({}, name_generator=self.name_generator)
 
     def test___init___without_tls(self):
         # setUp method called it
@@ -97,9 +98,31 @@ class DockerServiceTestCase(test.TestCase):
         self.assertEqual("foo:latest", self.docker._fix_the_name("foo"))
 
     def test_pull_image(self):
-        image = self.client.images.pull.return_value
+        image_obj = self.client.images.get.return_value
         image_name = "foo:bar"
 
-        self.assertEqual(image.attrs, self.docker.pull_image(image_name))
+        image = self.docker.pull_image(image_name)
+        self.assertNotEqual(
+            self.client.images.pull.return_value.attrs, image)
+        self.assertEqual(image_obj.attrs, image)
 
         self.client.images.pull.assert_called_once_with(image_name)
+        image_obj.tag.assert_called_once_with("foo",
+                                              self.name_generator.return_value)
+
+    def test_tag_image(self):
+        image_obj = self.client.images.get.return_value
+        image_name = "foo:bar"
+        tags = ["xxx", "yyy"]
+
+        image = self.docker.tag_image(image_name, tags=tags)
+        self.assertEqual(image_obj.attrs, image)
+        self.assertEqual(
+            [mock.call("foo", t) for t in tags],
+            image_obj.tag.call_args_list
+        )
+
+        image_obj.tag.reset_mock()
+        self.docker.tag_image(image_name)
+        image_obj.tag.assert_called_once_with(
+            "foo", self.name_generator.return_value)

@@ -61,15 +61,48 @@ class Docker(service.Service):
             return "%s:latest" % name
         return name
 
-    @atomic.action_timer("docker.pull")
+    @atomic.action_timer("docker.pull_image")
     def pull_image(self, name):
         """Pull the image by name.
 
-        It there is no tag in the name, only the latest tag will be used.
+        It there is no tag in the name, only the latest tag will be pulled.
         """
-        return self._client.images.pull(self._fix_the_name(name)).attrs
+        image = self._client.images.pull(self._fix_the_name(name))
+        if self._name_generator is not None:
+            # add Rally tag.
+            return self.tag_image(name)
 
-    @atomic.action_timer("docker.images")
+        return image.attrs
+
+    @atomic.action_timer("docker.get_image")
+    def _get_image(self, name):
+        """Get raw image object."""
+        return self._client.images.get(self._fix_the_name(name))
+
+    @atomic.action_timer("docker.get_image")
+    def get_image(self, name):
+        """Get image."""
+        return self._get_image(name).attrs
+
+    @atomic.action_timer("docker.tag_image")
+    def tag_image(self, name, tags=None):
+        """Add tag(s) to the image.
+
+        :param name: name of the image
+        :param tags: list of tags to add. If None, the random tag will be added
+        """
+        if tags is None:
+            tags = [self.generate_random_name()]
+        image = self._get_image(name)
+
+        # TODO(andreykurilin): validate format of the tags before trying to
+        #   adding them.
+        for tag in tags:
+            image.tag(name.split(":", 1)[0], tag)
+
+        return self.get_image(name)
+
+    @atomic.action_timer("docker.list_images")
     def list_images(self, all=False):
         """List all available images.
 
