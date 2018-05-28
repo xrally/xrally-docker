@@ -42,7 +42,7 @@ setuptools.setup(
     long_description=read_data("README.md"),
     long_description_content_type="text/markdown",
     author="Andrey Kurilin",
-    url="https://rally.readthedocs.io",
+    url="https://xrally.org/plugins/docker/overview",
     license="Apache License, Version 2.0",
     entry_points={
         "rally_plugins": [
