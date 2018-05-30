@@ -24,10 +24,11 @@ class ConfigSchemasTestCase(test.TestCase):
     OBJECT_TYPE_KEYS = {"$schema", "type", "description", "required",
                         "properties", "patternProperties",
                         "minProperties", "maxProperties",
-                        "additionalProperties", "oneOf", "anyOf"}
+                        "additionalProperties", "oneOf", "anyOf",
+                        "definitions"}
     ARRAY_TYPE_KEYS = {"$schema", "type", "description", "items",
                        "uniqueItems", "minItems", "maxItems",
-                       "additionalItems"}
+                       "additionalItems", "definitions"}
     NUMBER_TYPE_KEYS = {"$schema", "type", "description", "minimum", "maximum",
                         "exclusiveMinimum"}
     STRING_TYPE_KEYS = {"$schema", "type", "description", "pattern"}
@@ -54,10 +55,6 @@ class ConfigSchemasTestCase(test.TestCase):
 
     def _check_object_type(self, p, schema, definitions):
         unexpected_keys = set(schema.keys()) - self.OBJECT_TYPE_KEYS
-        if "definitions" in unexpected_keys:
-            # TODO(andreykurilin): do not use definitions since it is a hard
-            #     task to parse and display them
-            unexpected_keys -= {"definitions"}
         if unexpected_keys:
             self.fail(p, schema, ("Found unexpected key(s) for object type: "
                                   "%s." % ", ".join(unexpected_keys)))

@@ -133,3 +133,94 @@ class Docker(service.Service):
             image=self._fix_the_name(image_name), name=container_name,
             command=command,
             detach=detach, stdout=stdout, stderr=stderr, remove=remove)
+
+    @atomic.action_timer("docker.create_network")
+    def create_network(self, name=None, driver=None, options=None, ipam=None,
+                       check_duplicate=None, internal=False, labels=None,
+                       enable_ipv6=False, attachable=None, scope=None,
+                       ingress=None):
+        """Create a network
+
+        :param name: Name of the network
+        :param driver: Name of the driver used to create the network
+        :param options: Driver options as a key-value dictionary
+        :param ipam: Optional custom IP scheme for the network.
+        :param check_duplicate: Request daemon to check for networks with
+            same name.
+        :param internal: Restrict external access to the network.
+        :param labels: Map of labels to set on the network.
+        :param enable_ipv6: Enable IPv6 on the network.
+        :param attachable: If enabled, and the network is in the global
+            scope,  non-service containers on worker nodes will be able to
+            connect to the network.
+        :param scope: Specify the network's scope (``local``, ``global`` or
+            ``swarm``)
+        :param ingress: If set, create an ingress network which provides
+            the routing-mesh in swarm mode.
+        """
+        from docker import types
+
+        name = name or self.generate_random_name()
+        if ipam and not isinstance(ipam, types.IPAMConfig):
+            pool_configs = [
+                types.IPAMPool(**cfg) for cfg in ipam.get("Config", [])]
+            ipam = types.IPAMConfig(ipam["Driver"],
+                                    pool_configs=pool_configs,
+                                    options=ipam["Options"])
+        net = self._client.networks.create(
+            name=name,
+            driver=driver,
+            options=options,
+            ipam=ipam,
+            check_duplicate=check_duplicate,
+            internal=internal,
+            labels=labels,
+            enable_ipv6=enable_ipv6,
+            attachable=attachable,
+            scope=scope,
+            ingress=ingress
+        )
+        return net.attrs
+
+    @atomic.action_timer("docker.get_network")
+    def get_network(self, network_id, verbose=False, scope=None):
+        """Get network by ID.
+
+        :param network_id: a Network ID
+        :param verbose: Retrieve the service details across the cluster in
+            swarm mode.
+        :param scope: Filter the network by scope (``swarm``, ``global``
+            or ``local``).
+        """
+        return self._client.networks.get(network_id=network_id,
+                                         verbose=verbose,
+                                         scope=scope).attrs
+
+    @atomic.action_timer("docker.delete_network")
+    def delete_network(self, network_id):
+        """Remove a network by its ID"""
+        self._client.networks.client.api.remove_network(network_id)
+
+    @atomic.action_timer("docker.list_networks")
+    def list_networks(self, ids=None, names=None, driver=None, label=None,
+                      ntype=None, detailed=False):
+        """List available networks.
+
+        :param ids: List of ids to filter by.
+        :param names: List of names to filter by.
+        :param driver: a network driver to match
+        :param label: label to match
+        :param ntype: Filters networks by type.
+        :param detailed: Grep detailed information about networks (aka greedy)
+        """
+        filters = {}
+        if driver:
+            filters["driver"] = driver
+        if label:
+            filters["label"] = label
+        if ntype:
+            filters["type"] = ntype
+        return [n.attrs for n in self._client.networks.list(
+            ids=ids or [],
+            names=names or [],
+            greedy=detailed, filters=filters)]

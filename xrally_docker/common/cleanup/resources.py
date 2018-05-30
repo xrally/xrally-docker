@@ -104,3 +104,8 @@ class Image(ResourceManager):
     def name(self):
         return [tag.split(":", 1)[1]
                 for tag in self.raw_resource["Tags"]]
+
+
+@configure("network")
+class Network(ResourceManager):
+    pass

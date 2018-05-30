@@ -1,0 +1,21 @@
+{
+    "version": 2,
+    "title": "Check listing networks.",
+    "subtasks": [
+        {
+            "title": "Run a single workload with listing existing docker networks",
+            "scenario": {
+                "Docker.list_networks": {}
+            },
+            "runner": {
+                "constant": {
+                    "times": 10,
+                    "concurrency": 2
+                }
+            },
+            "contexts": {
+                "networks@docker": [{}, {}]
+            }
+        }
+    ]
+}

@@ -126,3 +126,74 @@ class DockerServiceTestCase(test.TestCase):
         self.docker.tag_image(image_name)
         image_obj.tag.assert_called_once_with(
             "foo", self.name_generator.return_value)
+
+    def test_create_network(self):
+        driver = "foo"
+        options = "options"
+        ipam = {"Driver": "ddd", "Config": [], "Options": {"opt1": "opt2"}}
+        check_duplicate = "check_duplicate"
+        internal = "internal"
+        labels = ["labels"]
+        enable_ipv6 = ["enable_ipv6"]
+        attachable = "attachable"
+        scope = "swarm"
+        ingress = "ingress"
+
+        self.docker.create_network(
+            driver=driver,
+            options=options,
+            ipam=ipam,
+            check_duplicate=check_duplicate,
+            internal=internal,
+            labels=labels,
+            enable_ipv6=enable_ipv6,
+            attachable=attachable,
+            scope=scope,
+            ingress=ingress)
+
+        self.client.networks.create.assert_called_once_with(
+            name=self.name_generator.return_value,
+            driver=driver,
+            options=options,
+            ipam=mock.ANY,
+            check_duplicate=check_duplicate,
+            internal=internal,
+            labels=labels,
+            enable_ipv6=enable_ipv6,
+            attachable=attachable,
+            scope=scope,
+            ingress=ingress
+        )
+
+    def test_get_network(self):
+        net_id = "asd"
+        self.assertEqual(self.client.networks.get.return_value.attrs,
+                         self.docker.get_network(net_id))
+        self.client.networks.get.assert_called_once_with(
+            network_id=net_id, verbose=False, scope=None)
+
+    def test_delete_network(self):
+        net_id = "asd"
+        self.docker.delete_network(net_id)
+
+        self.client.networks.client.api.remove_network.assert_called_once_with(
+            net_id)
+
+    def test_list_networks(self):
+        networks = [mock.MagicMock(), mock.MagicMock()]
+        self.client.networks.list.return_value = networks
+
+        ids = ["id1", "id2"]
+        names = ["name1"]
+        driver = "foo"
+        label = "label"
+        ntype = "type"
+        detailed = True
+
+        self.assertEqual([n.attrs for n in networks],
+                         self.docker.list_networks(
+                             ids=ids, names=names, driver=driver, label=label,
+                             ntype=ntype, detailed=detailed))
+        self.client.networks.list.assert_called_once_with(
+            ids=ids, names=names, greedy=detailed,
+            filters={"type": ntype, "label": label, "driver": driver})
