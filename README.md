@@ -58,15 +58,21 @@ Here is a simple workload:
 ```yaml
 
 ---
-  Docker.run_container:
+  version: 2
+  title: Simple task with only one workload
+  subtasks:
     -
-      args:
-        image_name: "ubuntu"
-        command: "echo 'Hello world!'"
+      title: a subtask with one workload
+      description: This workload should run a container from "ubuntu" 
+                   image and execute simple command.
+      scenario:
+        Docker.run_container:
+          image_name: "ubuntu"
+          command: "echo 'Hello world!'"
       runner:
-        type: constant
-        times: 10
-        concurrency: 2
+        constant:
+          times: 10
+          concurrency: 2
       sla:
         failure_rate:
           max: 0
