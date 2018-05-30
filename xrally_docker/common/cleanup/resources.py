@@ -58,18 +58,13 @@ class ResourceManager(object):
     """
 
     @classmethod
-    def get_manager(cls, client):
-
+    def list(cls, client):
         if cls._name.endswith("y"):
             name = cls._name[:-1] + "ies"
         else:
             name = cls._name + "s"
-        # NOTE(andreykurilin): Use raw docker client for now
-        return getattr(client._client, name)
-
-    @classmethod
-    def list(cls, client):
-        return [cls(obj, client) for obj in cls.get_manager(client).list()]
+        list_method = getattr(client, "list_%s" % name)
+        return [cls(obj, client) for obj in list_method()]
 
     def __init__(self, resource, client):
         self.raw_resource = resource
@@ -77,11 +72,11 @@ class ResourceManager(object):
 
     def id(self):
         """Returns id of resource."""
-        return self.raw_resource.id
+        return self.raw_resource["Id"]
 
     def name(self):
         """Returns name or a list of names for resource."""
-        return self.raw_resource.name
+        return self.raw_resource["Name"]
 
     def is_deleted(self):
         """Checks if the resource is deleted.
@@ -91,7 +86,8 @@ class ResourceManager(object):
         True, otherwise False.
         """
         try:
-            self.get_manager(self.client).get(self.id())
+            get_method = getattr(self.client, "get_%s" % self._name)
+            get_method(self.id())
         except Exception as e:
             return getattr(e, "code", getattr(e, "status_code", 400)) == 404
 
@@ -99,11 +95,12 @@ class ResourceManager(object):
 
     def delete(self):
         """Delete resource that corresponds to instance of this class."""
-        self.get_manager(self.client).delete(self.id())
+        delete_method = getattr(self.client, "delete_%s" % self._name)
+        delete_method(self.id())
 
 
 @configure("image")
 class Image(ResourceManager):
     def name(self):
         return [tag.split(":", 1)[1]
-                for tag in self.raw_resource.tags]
+                for tag in self.raw_resource["Tags"]]

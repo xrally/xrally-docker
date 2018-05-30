@@ -29,53 +29,46 @@ class AnotherFakeResource(resources.ResourceManager):
 
 
 class ResourceManagerTestCase(test.TestCase):
-    def test_get_manager(self):
-        client = mock.MagicMock()
-
-        self.assertEqual(client._client.foos, FakeResource.get_manager(client))
-        self.assertEqual(client._client.bies,
-                         AnotherFakeResource.get_manager(client))
-
     def test_list(self):
         foo_objs = [mock.MagicMock(), mock.MagicMock()]
         client = mock.MagicMock()
-        client._client.foos.list.return_value = foo_objs
+        client.list_foos.return_value = foo_objs
 
         self.assertEqual(
             foo_objs,
             [r.raw_resource for r in FakeResource.list(client)])
 
     def test_attributes(self):
-        res = mock.MagicMock()
-        self.assertEqual(res.name, FakeResource(res, None).name())
-        self.assertEqual(res.id, FakeResource(res, None).id())
+        res = {"Id": "iidd", "Name": "foo"}
+        self.assertEqual("foo", FakeResource(res, None).name())
+        self.assertEqual("iidd", FakeResource(res, None).id())
 
     def test_is_deleted(self):
         client = mock.MagicMock()
 
-        client._client.foos.get.return_value = "foo"
+        client.get_foo.return_value = "foo"
         self.assertFalse(FakeResource(mock.MagicMock(), client).is_deleted())
 
-        client._client.foos.get.side_effect = Exception()
+        client.get_foo.side_effect = Exception()
         self.assertFalse(FakeResource(mock.MagicMock(), client).is_deleted())
 
         class NotFound(Exception):
             status_code = 404
 
-        client._client.foos.get.side_effect = NotFound()
+        client.get_foo.side_effect = NotFound()
         self.assertTrue(FakeResource(mock.MagicMock(), client).is_deleted())
 
     def test_delete(self):
-        raw_res = mock.MagicMock()
+        raw_res = {"Id": "foo"}
         client = mock.MagicMock()
 
         FakeResource(raw_res, client).delete()
-        client._client.foos.delete(raw_res.id)
+        client.delete_foo.assert_called_once_with("foo")
 
 
 class ImageTestCase(object):
     def test_name(self):
-        res = mock.MagicMock(tags=["foo:bar", "xxx:yyy"])
+        res = {"Tags": ["foo:bar", "xxx:yyy"]}
         self.assertEqual(
             ["bar", "yyy"],
             resources.Image(res, None).name())
