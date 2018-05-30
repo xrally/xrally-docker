@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from rally.common.plugin import plugin
+from rally.common import validation
 from rally.task import scenario
 
 from xrally_docker import service
@@ -21,6 +23,8 @@ def configure(name=None, context=None):
     return scenario.configure(name=name, platform="docker", context=context)
 
 
+@validation.add_default("required_docker_platform")
+@plugin.default_meta(inherit=False)
 class BaseDockerScenario(scenario.Scenario):
     def __init__(self, context=None):
         super(BaseDockerScenario, self).__init__(context)
