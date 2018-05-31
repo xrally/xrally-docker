@@ -68,7 +68,7 @@ class ResourceManagerTestCase(test.TestCase):
 
 class ImageTestCase(object):
     def test_name(self):
-        res = {"Tags": ["foo:bar", "xxx:yyy"]}
+        res = {"RepoTags": ["foo:bar", "xxx:yyy"]}
         self.assertEqual(
             ["bar", "yyy"],
             resources.Image(res, None).name())

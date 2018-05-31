@@ -103,7 +103,7 @@ class ResourceManager(object):
 class Image(ResourceManager):
     def name(self):
         return [tag.split(":", 1)[1]
-                for tag in self.raw_resource["Tags"]]
+                for tag in self.raw_resource["RepoTags"]]
 
 
 @configure("network")
