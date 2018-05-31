@@ -1,5 +1,5 @@
 {
-    "docker": {
+    "existing@docker": {
         "host": "https://example.net:1234",
         "tls_verify": false,
         "cert_path": "/home/my/docker_certs"

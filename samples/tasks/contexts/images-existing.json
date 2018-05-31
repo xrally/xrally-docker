@@ -4,6 +4,6 @@
       "description": "An example of 'images' context configured to load existing images.",
       "args": {"image_name": "foo", "command": "bar"},
       "context": {
-        "images": {"existing": true}}
+        "images@docker": {"existing": true}}
     }]
 }

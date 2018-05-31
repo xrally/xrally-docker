@@ -13,6 +13,25 @@
                     "concurrency": 2
                 }
             }
+        },
+        {
+
+            "title": "Run a single workload with listing pre-created networks",
+            "scenario": {
+                "Docker.list_networks": {}
+            },
+            "contexts": {
+                "networks@docker": [
+                    {},
+                    {}
+                ]
+            },
+            "runner": {
+                "constant": {
+                    "concurrency": 2,
+                    "times": 10
+                }
+            }
         }
     ]
 }

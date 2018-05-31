@@ -1,0 +1,21 @@
+---
+version: 2
+title: Check listing networks.
+subtasks:
+- title: Run a single workload with listing existing docker networks
+  scenario:
+    Docker.list_networks: {}
+  runner:
+    constant:
+      concurrency: 2
+      times: 10
+
+- title: Run a single workload with listing pre-created networks
+  scenario:
+    Docker.list_networks: {}
+  runner:
+    constant:
+      concurrency: 2
+      times: 10
+  contexts:
+    networks@docker: [{}, {}]

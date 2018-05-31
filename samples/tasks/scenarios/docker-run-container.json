@@ -1,15 +1,21 @@
 {
-  "Docker.run_container": [
-    {
-      "args": {
-        "image_name": "ubuntu",
-        "command": "echo 'Hello world!'"},
-      "runner": {
-        "type": "constant",
-        "times": 10,
-        "concurrency": 2},
-      "sla": {
-        "failure_rate": {"max": 0}}
-    }
-  ]
+    "version": 2,
+    "title": "Run docker container.",
+    "subtasks": [
+        {
+            "title": "Run a container from 'ubuntu' image and execute simple command",
+            "scenario": {
+                "Docker.run_container": {
+                    "image_name": "ubuntu",
+                    "command": "echo 'Hello world!'"
+                }
+            },
+            "runner": {
+                "constant": {
+                    "times": 10,
+                    "concurrency": 2
+                }
+            }
+        }
+    ]
 }

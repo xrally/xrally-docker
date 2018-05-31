@@ -1,4 +1,4 @@
-# xrally_docker
+# xrally-docker
 
 xRally plugins for [Docker engine](https://www.docker.com).
 

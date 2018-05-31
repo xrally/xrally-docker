@@ -6,5 +6,5 @@
       command: bar
       image_name: foo
     context:
-      images:
+      images@docker:
         existing: true

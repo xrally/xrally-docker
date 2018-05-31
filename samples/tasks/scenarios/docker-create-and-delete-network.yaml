@@ -1,0 +1,11 @@
+---
+version: 2
+title: Check create and delete network actions at docker installation.
+subtasks:
+- title: Run a single workload.
+  scenario:
+    Docker.create_and_delete_network: {}
+  runner:
+    constant:
+      concurrency: 2
+      times: 10
