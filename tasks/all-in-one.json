@@ -1,0 +1,64 @@
+{
+    "version": 2,
+    "title": "Check everything we can.",
+    "subtasks": [
+        {
+            "title": "Create and delete network.",
+            "scenario": {
+                "Docker.create_and_delete_network": {}
+            },
+            "runner": {
+                "constant": {
+                    "times": 10,
+                    "concurrency": 2
+                }
+            }
+        },
+        {
+            "title": "Check listing networks",
+            "workloads": [
+                {
+                    "scenario": {
+                        "Docker.list_networks": {}
+                    },
+                    "runner": {
+                        "constant": {
+                            "times": 10,
+                            "concurrency": 2
+                        }
+                    }
+                },
+                {
+                    "description": "List existing + precreated networks",
+                    "scenario": {
+                        "Docker.list_networks": {}
+                    },
+                    "contexts": {
+                        "networks@docker": [{},{}]
+                    },
+                    "runner": {
+                        "constant": {
+                            "concurrency": 2,
+                            "times": 10
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Run a container from 'ubuntu' image and execute simple command",
+            "scenario": {
+                "Docker.run_container": {
+                    "image_name": "ubuntu",
+                    "command": "echo 'Hello world!'"
+                }
+            },
+            "runner": {
+                "constant": {
+                    "times": 10,
+                    "concurrency": 2
+                }
+            }
+        }
+    ]
+}
