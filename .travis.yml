@@ -6,33 +6,27 @@ matrix:
       env:
         JOB_NAME=unittest
         TOXENV=py27
-      install:
-        - pip install tox
     - python: 3.5
       env:
         JOB_NAME=unittest
         TOXENV=py35
-      install:
-        - pip install tox
     - python: 3.6
       env:
         JOB_NAME=unittest
         TOXENV=py36
-      install:
-        - pip install tox
     # stylish checks
     - env:
         JOB_NAME=pep8
         TOXENV=pep8
-      install:
-        - pip install tox
     # run real rally task
-    - env:
+    - python: 3.5
+      env:
         JOB_NAME="Rally Task"
+        TOXENV=run-task
         XRALLY_TASK="./tasks/all-in-one.json"
       services:
         - docker
-      install:
-        - pip install virtualenv
 script:
-  - tests/ci/run_at_travis.sh
+  - tox
+install:
+  - pip install tox
